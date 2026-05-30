@@ -40,12 +40,241 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
 .bg { background: #14532d; color: #86efac; }
 .sep { font-size: 0.7rem; text-transform: uppercase; margin: 10px 0 4px; }
 .hint { font-size: 0.72rem; color: #555; margin-top: 3px; }
+
+/* === BLOCO DE FÓRMULAS === */
+.formulas-card {
+  background: #161a20;
+  border: 1px solid #2a3a2a;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.formulas-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.formulas-toggle-title {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #4ade80;
+  letter-spacing: 0.05em;
+}
+.formulas-toggle-icon {
+  font-size: 1rem;
+  color: #4ade80;
+  transition: transform 0.2s;
+}
+.formulas-body {
+  margin-top: 12px;
+  display: block;
+}
+.formula-block {
+  background: #0f1a0f;
+  border-left: 3px solid #16a34a;
+  border-radius: 0 6px 6px 0;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.formula-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: #4ade80;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+/* Fórmula renderizada visualmente */
+.formula-math {
+  font-family: 'Georgia', serif;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+  margin-bottom: 6px;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.formula-fraction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 3px;
+  font-size: 0.8rem;
+}
+.formula-fraction .num { border-bottom: 1px solid #aaa; padding-bottom: 1px; white-space: nowrap; }
+.formula-fraction .den { padding-top: 1px; white-space: nowrap; }
+.fvar { color: #fbbf24; font-style: italic; }
+.fop  { color: #888; margin: 0 2px; }
+.fcst { color: #93c5fd; font-style: italic; }
+.fres { color: #86efac; font-style: italic; font-weight: bold; }
+
+/* Tooltips de parâmetros */
+.param-list { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.param-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.74rem;
+}
+.param-name {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  color: #fbbf24;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+.param-arrow { color: #444; }
+.param-desc { color: #888; line-height: 1.4; }
+
+/* === CARGA TRIBUTÁRIA — destaque explicativo === */
+.tax-rate-box {
+  margin-top: 8px;
+  background: #1a1a2e;
+  border: 1px solid #312e81;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.tax-rate-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: #818cf8;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+.tax-rate-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tax-rate-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  min-width: 70px;
+}
+.tax-rate-formula {
+  font-size: 0.72rem;
+  color: #555;
+  text-align: right;
+  line-height: 1.5;
+}
+.tax-rate-formula .highlight { color: #818cf8; }
+.tax-rate-interp {
+  font-size: 0.75rem;
+  color: #6366f1;
+  margin-top: 6px;
+  border-top: 1px solid #1e1b4b;
+  padding-top: 6px;
+  line-height: 1.4;
+}
 </style>
 </head>
 <body>
 
 <h2>Calculadora de Impostos Alibaba</h2>
 <p class="subtitle">Simule o custo real de uma importacao via Courier (FedEx/DHL/UPS)</p>
+
+<!-- ===== BLOCO DE FÓRMULAS ===== -->
+<div class="formulas-card">
+  <div class="formulas-toggle" onclick="toggleFormulas()">
+    <span class="formulas-toggle-title">📐 Como os impostos são calculados</span>
+    <span class="formulas-toggle-icon" id="f-icon">▼</span>
+  </div>
+  <div class="formulas-body" id="formulas-body">
+
+    <!-- VA -->
+    <div class="formula-block">
+      <div class="formula-label">1. Valor Aduaneiro (VA) — base de cálculo de tudo</div>
+      <div class="formula-math">
+        <span class="fres">VA</span>
+        <span class="fop">=</span>
+        <span class="fvar">Produto</span>
+        <span class="fop">+</span>
+        <span class="fvar">Frete</span>
+      </div>
+      <div class="param-list">
+        <div class="param-item"><span class="param-name">Produto</span><span class="param-arrow">→</span><span class="param-desc">Valor declarado do produto em USD (o que você declara na nota, não o que pagou)</span></div>
+        <div class="param-item"><span class="param-name">Frete</span><span class="param-arrow">→</span><span class="param-desc">Frete declarado em USD. Entra na base porque a Receita cobra imposto inclusive sobre o custo de transporte</span></div>
+      </div>
+    </div>
+
+    <!-- II -->
+    <div class="formula-block">
+      <div class="formula-label">2. II — Imposto de Importação</div>
+      <div class="formula-math">
+        <span class="fres">II</span>
+        <span class="fop">=</span>
+        <span class="fvar">VA</span>
+        <span class="fop">×</span>
+        <span class="fcst">alíquota<sub>II</sub></span>
+      </div>
+      <div class="param-list">
+        <div class="param-item"><span class="param-name">VA</span><span class="param-arrow">→</span><span class="param-desc">Valor Aduaneiro calculado acima</span></div>
+        <div class="param-item"><span class="param-name">alíq. II</span><span class="param-arrow">→</span><span class="param-desc">Normalmente 60% para remessas via Courier (programa Remessa Conforme). Aplique direto sobre VA.</span></div>
+      </div>
+    </div>
+
+    <!-- ICMS -->
+    <div class="formula-block">
+      <div class="formula-label">3. ICMS — imposto estadual com cálculo "por dentro"</div>
+      <div class="formula-math">
+        <span class="fres">ICMS</span>
+        <span class="fop">=</span>
+        <div class="formula-fraction">
+          <div class="num"><span class="fvar">VA</span><span class="fop">+</span><span class="fvar">II</span></div>
+          <div class="den">1 <span class="fop">−</span> <span class="fcst">alíq<sub>ICMS</sub></span></div>
+        </div>
+        <span class="fop">×</span>
+        <span class="fcst">alíq<sub>ICMS</sub></span>
+      </div>
+      <div class="param-list">
+        <div class="param-item"><span class="param-name">VA + II</span><span class="param-arrow">→</span><span class="param-desc">Base parcial: produto + frete + II já calculado</span></div>
+        <div class="param-item"><span class="param-name">1 − alíq</span><span class="param-arrow">→</span><span class="param-desc">O ICMS é "por dentro": ele incide sobre uma base que já inclui ele mesmo. Por isso divide por (1 − alíquota) antes de multiplicar</span></div>
+        <div class="param-item"><span class="param-name">alíq. ICMS</span><span class="param-arrow">→</span><span class="param-desc">Varia por estado: SP=18%, MG=18%, RJ=20%, RS=17%... Ajuste no campo acima</span></div>
+      </div>
+    </div>
+
+    <!-- IOF -->
+    <div class="formula-block" style="border-left-color:#f59e0b">
+      <div class="formula-label" style="color:#f59e0b">4. IOF — Imposto sobre Operação Financeira</div>
+      <div class="formula-math">
+        <span class="fres" style="color:#fbbf24">IOF</span>
+        <span class="fop">=</span>
+        <span class="fvar">VA</span>
+        <span class="fop">×</span>
+        <span class="fcst">alíquota<sub>IOF</sub></span>
+      </div>
+      <div class="param-list">
+        <div class="param-item"><span class="param-name">alíq. IOF</span><span class="param-arrow">→</span><span class="param-desc">Incide sobre o câmbio da operação. Para compras internacionais com cartão/transferência: ~3,5%</span></div>
+      </div>
+    </div>
+
+    <!-- Total -->
+    <div class="formula-block" style="border-left-color:#ef4444">
+      <div class="formula-label" style="color:#ef4444">5. Total de Imposto</div>
+      <div class="formula-math">
+        <span class="fres" style="color:#f87171">Total de Imposto</span>
+        <span class="fop">=</span>
+        <span class="fvar">II</span>
+        <span class="fop">+</span>
+        <span class="fvar">ICMS</span>
+        <span class="fop">+</span>
+        <span class="fvar">IOF</span>
+      </div>
+      <div class="param-list">
+        <div class="param-item"><span class="param-name">IOF</span><span class="param-arrow">→</span><span class="param-desc">Incluído conforme legislação brasileira — incide sobre toda operação de câmbio na importação, mesmo que a imagem original o omita por simplificação didática</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <!-- DECLARADO -->
 <div class="card" style="border:1px solid #78350f">
@@ -82,7 +311,6 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
 <div class="card" style="border:1px solid #1e3a5f">
   <div class="card-title" style="color:#60a5fa">Taxas do Courier (FedEx/DHL/UPS) <span class="badge" style="background:#1e3a5f;color:#93c5fd">COBRADO NA ENTREGA</span></div>
   <div class="card-desc">Taxas cobradas pela transportadora quando o pacote chega ao Brasil. Pagas separado dos impostos.</div>
-
   <div class="row2">
     <div class="field">
       <label>Peso do pacote (kg)</label>
@@ -97,7 +325,6 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
       </select>
     </div>
   </div>
-
   <div class="field">
     <label>Taxa de Inspecao Aduaneira</label>
     <select id="inspecao" onchange="calc()">
@@ -134,9 +361,35 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
   <div class="rrow nd"><div class="lbl">Nao declarado (pago direto, sem imposto)</div><div class="val"><div class="usd" id="o-nd"></div><div class="brl" id="b-nd"></div></div></div>
 
   <div class="divider"></div>
-  <div class="rrow tot"><div class="lbl">CUSTO TOTAL REAL</div><div class="val"><div class="usd" id="o-tt"></div><div class="brl" id="b-tt"></div></div></div>
-  <div class="divider"></div>
-  <div class="rrow"><div class="lbl">Carga tributaria s/ declarado</div><div class="val"><div class="usd" id="o-pct" style="font-weight:bold"></div></div></div>
+  <div style="background:#1a0a0a;border:1px solid #7f1d1d;border-radius:8px;padding:12px 14px;margin:8px 0;">
+    <div style="font-size:0.7rem;text-transform:uppercase;color:#7f1d1d;letter-spacing:0.08em;margin-bottom:6px;font-weight:bold;">💸 Custo Total Real</div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;">
+      <div style="font-size:0.8rem;color:#aaa;line-height:1.4;">Tudo somado:<br>declarado + impostos<br>+ courier + não declarado</div>
+      <div style="text-align:right;">
+        <div id="o-tt" style="font-size:1.6rem;font-weight:bold;color:#ef4444;line-height:1.1;"></div>
+        <div id="b-tt" style="font-size:1rem;font-weight:bold;color:#f87171;margin-top:2px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === CARGA TRIBUTÁRIA — bloco explicativo === -->
+  <div class="tax-rate-box">
+    <div class="tax-rate-title">📊 Carga tributária sobre o valor declarado</div>
+    <div class="tax-rate-display">
+      <div class="tax-rate-value" id="o-pct-big">—</div>
+      <div class="tax-rate-formula">
+        <span style="color:#555">Total Impostos</span><br>
+        <span style="color:#312e81;font-size:1.1em">──────────────</span><br>
+        <span style="color:#555">VA (declarado)</span><br>
+        <br>
+        <span class="highlight">= quanto de imposto você paga<br>por cada R$ declarado</span>
+      </div>
+    </div>
+    <div class="tax-rate-interp" id="tax-interp">
+      Preencha os valores acima para ver a interpretação.
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -145,6 +398,18 @@ function sel(id) { return document.getElementById(id).value; }
 function su(oid, u) { document.getElementById(oid).textContent = u >= 0 ? '$ ' + u.toFixed(2) : '-'; }
 function sb(bid, b) { document.getElementById(bid).textContent = 'R$ ' + b.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}); }
 function s(oid, bid, u, b) { su(oid, u); sb(bid, b); }
+
+function toggleFormulas() {
+  var body = document.getElementById('formulas-body');
+  var icon = document.getElementById('f-icon');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    icon.textContent = '▼';
+  } else {
+    body.style.display = 'none';
+    icon.textContent = '▶';
+  }
+}
 
 function calc() {
   var pr = g('produto'), fr = g('frete'), re = g('real');
@@ -162,8 +427,7 @@ function calc() {
   var ti = II + IC + IO;
   var dc = VA + ti;
 
-  // Taxas Courier (FedEx)
-  // Desembaraco: baseado no valor declarado em reais
+  // Taxas Courier
   var vaBRL = VA * dl;
   var desBRL = vaBRL <= 500 ? 16.87 * dl : vaBRL <= 1000 ? 20.25 * dl : 25.86 * dl;
   var desUSD = desBRL / dl;
@@ -195,9 +459,32 @@ function calc() {
   s('o-nd','b-nd', nd, nd*dl);
   s('o-tt','b-tt', tt, tt*dl);
 
-  var el = document.getElementById('o-pct');
-  el.textContent = pct.toFixed(1)+'%';
-  el.style.color = pct>70?'#ef4444':pct>40?'#f59e0b':'#22c55e';
+  // === Carga tributária — novo bloco explicativo ===
+  var bigEl = document.getElementById('o-pct-big');
+  var interpEl = document.getElementById('tax-interp');
+  var pctStr = pct.toFixed(1) + '%';
+  bigEl.textContent = pctStr;
+
+  var color, interp;
+  if (VA === 0) {
+    bigEl.style.color = '#555';
+    interpEl.textContent = 'Informe o valor declarado para calcular.';
+  } else if (pct > 70) {
+    color = '#ef4444';
+    interp = '🔴 Carga alta: a cada R$ 1,00 declarado, você paga R$ ' + (pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' só em impostos. Faz sentido revisar o valor declarado (dentro da legalidade).';
+  } else if (pct > 40) {
+    color = '#f59e0b';
+    interp = '🟡 Carga moderada: a cada R$ 1,00 declarado, R$ ' + (pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' vão para impostos. Já pesa, mas é a faixa comum para importações acima de US$ 50.';
+  } else {
+    color = '#22c55e';
+    interp = '🟢 Carga baixa: a cada R$ 1,00 declarado, apenas R$ ' + (pct/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' em impostos. Possivelmente benefício de isenção ou alíquota reduzida.';
+  }
+  if (VA > 0) {
+    bigEl.style.color = color;
+    bigEl.style.fontSize = '1.8rem';
+    interpEl.style.color = color === '#ef4444' ? '#f87171' : color === '#f59e0b' ? '#fbbf24' : '#4ade80';
+    interpEl.textContent = interp;
+  }
 }
 calc();
 </script>
