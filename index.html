@@ -16,6 +16,7 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
 .field label { display: block; font-size: 0.82rem; color: #aaa; margin-bottom: 4px; }
 .field input { width: 100%; padding: 10px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; font-size: 1rem; outline: none; -webkit-appearance: none; appearance: none; }
 .field input:focus { border-color: #f59e0b; }
+.field select { width: 100%; padding: 10px; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; font-size: 1rem; outline: none; -webkit-appearance: none; appearance: none; }
 .row2 { display: flex; gap: 10px; }
 .row2 .field { flex: 1; min-width: 0; }
 .divider { border: none; border-top: 1px solid #333; margin: 8px 0; }
@@ -36,14 +37,17 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
 .badge { display: inline-block; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
 .by { background: #78350f; color: #fcd34d; }
 .br { background: #7f1d1d; color: #fca5a5; }
+.bg { background: #14532d; color: #86efac; }
 .sep { font-size: 0.7rem; text-transform: uppercase; margin: 10px 0 4px; }
+.hint { font-size: 0.72rem; color: #555; margin-top: 3px; }
 </style>
 </head>
 <body>
 
 <h2>Calculadora de Impostos Alibaba</h2>
-<p class="subtitle">Simule o custo real de uma importacao</p>
+<p class="subtitle">Simule o custo real de uma importacao via Courier (FedEx/DHL/UPS)</p>
 
+<!-- DECLARADO -->
 <div class="card" style="border:1px solid #78350f">
   <div class="card-title" style="color:#f59e0b">Valor Declarado <span class="badge by">INCIDE IMPOSTO</span></div>
   <div class="card-desc">II, ICMS e IOF serao calculados sobre esses valores.</div>
@@ -53,12 +57,14 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
   </div>
 </div>
 
+<!-- VALOR REAL -->
 <div class="card" style="border:1px solid #7f1d1d">
   <div class="card-title" style="color:#ef4444">Valor Real Pago <span class="badge br">SEM IMPOSTO</span></div>
   <div class="card-desc">A diferenca entre esse valor e o declarado nao paga imposto.</div>
   <div class="field"><label>Total pago no Alibaba (USD)</label><input type="number" id="real" value="950" min="0" onchange="calc()" oninput="calc()"></div>
 </div>
 
+<!-- CAMBIO E ALIQUOTAS -->
 <div class="card">
   <div class="card-title" style="color:#888">Cambio e Aliquotas</div>
   <div class="card-desc">Ajuste conforme seu estado.</div>
@@ -72,19 +78,61 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
   </div>
 </div>
 
+<!-- TAXAS COURIER -->
+<div class="card" style="border:1px solid #1e3a5f">
+  <div class="card-title" style="color:#60a5fa">Taxas do Courier (FedEx/DHL/UPS) <span class="badge" style="background:#1e3a5f;color:#93c5fd">COBRADO NA ENTREGA</span></div>
+  <div class="card-desc">Taxas cobradas pela transportadora quando o pacote chega ao Brasil. Pagas separado dos impostos.</div>
+
+  <div class="row2">
+    <div class="field">
+      <label>Peso do pacote (kg)</label>
+      <input type="number" id="peso" value="20" min="0" step="0.1" onchange="calc()" oninput="calc()">
+      <div class="hint">Snapmaker U1 ~ 20kg</div>
+    </div>
+    <div class="field">
+      <label>Documento</label>
+      <select id="doc" onchange="calc()">
+        <option value="cpf">CPF (R$ 3,41)</option>
+        <option value="cnpj">CNPJ (R$ 3,91)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Taxa de Inspecao Aduaneira</label>
+    <select id="inspecao" onchange="calc()">
+      <option value="0">Nao fiscalizado (R$ 0)</option>
+      <option value="10.92">Fiscalizado (US$ 10,92)</option>
+    </select>
+    <div class="hint">Cobrada se o pacote for inspecionado pela Receita Federal</div>
+  </div>
+</div>
+
+<!-- RESULTADO -->
 <div class="card">
-  <div class="card-title" style="color:#f59e0b">Resultado</div>
-  <div class="card-desc">Breakdown completo do custo.</div>
-  <div class="sep" style="color:#78350f">Sobre o declarado</div>
-  <div class="rrow"><div class="lbl">VA (produto + frete)</div><div class="val"><div class="usd" id="o-va"></div><div class="brl" id="b-va"></div></div></div>
-  <div class="rrow"><div class="lbl">II</div><div class="val"><div class="usd" id="o-ii"></div><div class="brl" id="b-ii"></div></div></div>
+  <div class="card-title" style="color:#f59e0b">Resultado Completo</div>
+  <div class="card-desc">Breakdown de tudo que voce vai pagar.</div>
+
+  <div class="sep" style="color:#78350f">Impostos sobre o declarado</div>
+  <div class="rrow"><div class="lbl">VA (produto + frete declarado)</div><div class="val"><div class="usd" id="o-va"></div><div class="brl" id="b-va"></div></div></div>
+  <div class="rrow"><div class="lbl">II (Imposto de Importacao)</div><div class="val"><div class="usd" id="o-ii"></div><div class="brl" id="b-ii"></div></div></div>
   <div class="rrow"><div class="lbl">ICMS</div><div class="val"><div class="usd" id="o-ic"></div><div class="brl" id="b-ic"></div></div></div>
   <div class="rrow"><div class="lbl">IOF</div><div class="val"><div class="usd" id="o-io"></div><div class="brl" id="b-io"></div></div></div>
   <div class="divider"></div>
   <div class="rrow hl"><div class="lbl">Total Impostos</div><div class="val"><div class="usd" id="o-ti"></div><div class="brl" id="b-ti"></div></div></div>
   <div class="rrow hl"><div class="lbl">Declarado + Impostos</div><div class="val"><div class="usd" id="o-dc"></div><div class="brl" id="b-dc"></div></div></div>
-  <div class="sep" style="color:#7f1d1d">Fora da declaracao</div>
-  <div class="rrow nd"><div class="lbl">Nao declarado (sem imposto)</div><div class="val"><div class="usd" id="o-nd"></div><div class="brl" id="b-nd"></div></div></div>
+
+  <div class="sep" style="color:#1e3a5f">Taxas do Courier (em reais)</div>
+  <div class="rrow"><div class="lbl">Desembaraco Aduaneiro</div><div class="val"><div class="usd" id="o-des"></div><div class="brl" id="b-des"></div></div></div>
+  <div class="rrow"><div class="lbl">Reembolso INFRAERO (R$ 3,44 x kg)</div><div class="val"><div class="usd">-</div><div class="brl" id="b-inf"></div></div></div>
+  <div class="rrow"><div class="lbl">Taxa Serasa (CPF/CNPJ)</div><div class="val"><div class="usd">-</div><div class="brl" id="b-ser"></div></div></div>
+  <div class="rrow"><div class="lbl">Taxa de Inspecao</div><div class="val"><div class="usd" id="o-ins"></div><div class="brl" id="b-ins"></div></div></div>
+  <div class="divider"></div>
+  <div class="rrow" style="background:#1e293b;border-radius:6px;padding:7px"><div class="lbl" style="color:#60a5fa;font-weight:bold">Total Taxas Courier</div><div class="val"><div class="usd" id="o-tc"></div><div class="brl" id="b-tc"></div></div></div>
+
+  <div class="sep" style="color:#7f1d1d">Valor fora da declaracao</div>
+  <div class="rrow nd"><div class="lbl">Nao declarado (pago direto, sem imposto)</div><div class="val"><div class="usd" id="o-nd"></div><div class="brl" id="b-nd"></div></div></div>
+
   <div class="divider"></div>
   <div class="rrow tot"><div class="lbl">CUSTO TOTAL REAL</div><div class="val"><div class="usd" id="o-tt"></div><div class="brl" id="b-tt"></div></div></div>
   <div class="divider"></div>
@@ -93,31 +141,60 @@ h2 { color: #f59e0b; margin-bottom: 4px; font-size: 1.3rem; }
 
 <script>
 function g(id) { var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
-function s(oid, bid, u, b) {
-  document.getElementById(oid).textContent = '$ ' + u.toFixed(2);
-  document.getElementById(bid).textContent = 'R$ ' + b.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2});
-}
+function sel(id) { return document.getElementById(id).value; }
+function su(oid, u) { document.getElementById(oid).textContent = u >= 0 ? '$ ' + u.toFixed(2) : '-'; }
+function sb(bid, b) { document.getElementById(bid).textContent = 'R$ ' + b.toLocaleString('pt-BR', {minimumFractionDigits:2,maximumFractionDigits:2}); }
+function s(oid, bid, u, b) { su(oid, u); sb(bid, b); }
+
 function calc() {
   var pr = g('produto'), fr = g('frete'), re = g('real');
   var dl = g('dolar') || 1;
   var ii = g('ii')/100, ic = g('icms')/100, io = g('iof')/100;
+  var peso = g('peso');
+  var docTax = sel('doc') === 'cpf' ? 3.41 : 3.91;
+  var inspecaoUSD = parseFloat(sel('inspecao')) || 0;
+
+  // Impostos
   var VA = pr + fr;
   var II = VA * ii;
   var IC = ((1-ic) > 0) ? ((VA+II)/(1-ic))*ic : 0;
   var IO = VA * io;
   var ti = II + IC + IO;
   var dc = VA + ti;
+
+  // Taxas Courier (FedEx)
+  // Desembaraco: baseado no valor declarado em reais
+  var vaBRL = VA * dl;
+  var desBRL = vaBRL <= 500 ? 16.87 * dl : vaBRL <= 1000 ? 20.25 * dl : 25.86 * dl;
+  var desUSD = desBRL / dl;
+  var infraBRL = 3.44 * peso;
+  var serasaBRL = docTax;
+  var insUSD = inspecaoUSD;
+  var insBRL = insUSD * dl;
+  var tcBRL = desBRL + infraBRL + serasaBRL + insBRL;
+  var tcUSD = tcBRL / dl;
+
+  // Nao declarado
   var nd = re > VA ? re - VA : 0;
-  var tt = dc + nd;
+
+  // Total real
+  var tt = dc + nd + tcUSD;
   var pct = VA > 0 ? ti/VA*100 : 0;
-  s('o-va','b-va',VA,VA*dl);
-  s('o-ii','b-ii',II,II*dl);
-  s('o-ic','b-ic',IC,IC*dl);
-  s('o-io','b-io',IO,IO*dl);
-  s('o-ti','b-ti',ti,ti*dl);
-  s('o-dc','b-dc',dc,dc*dl);
-  s('o-nd','b-nd',nd,nd*dl);
-  s('o-tt','b-tt',tt,tt*dl);
+
+  s('o-va','b-va', VA, VA*dl);
+  s('o-ii','b-ii', II, II*dl);
+  s('o-ic','b-ic', IC, IC*dl);
+  s('o-io','b-io', IO, IO*dl);
+  s('o-ti','b-ti', ti, ti*dl);
+  s('o-dc','b-dc', dc, dc*dl);
+  s('o-des','b-des', desUSD, desBRL);
+  sb('b-inf', infraBRL);
+  sb('b-ser', serasaBRL);
+  s('o-ins','b-ins', insUSD, insBRL);
+  s('o-tc','b-tc', tcUSD, tcBRL);
+  s('o-nd','b-nd', nd, nd*dl);
+  s('o-tt','b-tt', tt, tt*dl);
+
   var el = document.getElementById('o-pct');
   el.textContent = pct.toFixed(1)+'%';
   el.style.color = pct>70?'#ef4444':pct>40?'#f59e0b':'#22c55e';
